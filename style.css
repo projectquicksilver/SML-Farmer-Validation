@@ -1,0 +1,660 @@
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* ============================================
+   HEADER SECTION
+   ============================================ */
+.header {
+    background: #ffffff;
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    margin-bottom: 16px;
+}
+
+.logo {
+    max-width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.logo-fallback {
+    display: none;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.logo-text {
+    color: #ffffff;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.header-title {
+    font-size: 26px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+/* ============================================
+   MAIN CONTAINER
+   ============================================ */
+.main-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    padding-bottom: 100px;
+}
+
+/* ============================================
+   PROGRESS SECTION
+   ============================================ */
+.progress-section {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.progress-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #cbd5e0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dot.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transform: scale(1.3);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.dot.completed {
+    background: #48bb78;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 14px;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+/* ============================================
+   FORM CONTAINER
+   ============================================ */
+.form-container {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    min-height: 400px;
+}
+
+/* ============================================
+   FORM STEPS
+   ============================================ */
+.form-step {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.form-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   STEP HEADER
+   ============================================ */
+.step-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.step-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.step-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.step-subtitle {
+    font-size: 15px;
+    color: #718096;
+}
+
+/* ============================================
+   LANGUAGE SELECTION (STEP 1)
+   ============================================ */
+.language-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.language-card {
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+.language-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.language-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: #f7fafc;
+    border: 3px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.language-card input[type="radio"]:checked + .language-content {
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    border-color: #667eea;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.language-flag {
+    font-size: 36px;
+}
+
+.language-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* ============================================
+   FORM GROUPS & INPUTS
+   ============================================ */
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-input:focus,
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-input.error,
+.form-select.error {
+    border-color: #f56565;
+}
+
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    cursor: pointer;
+}
+
+.form-select:disabled {
+    background-color: #f7fafc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ============================================
+   MULTI-SELECT CROPS
+   ============================================ */
+.multi-select-wrapper {
+    position: relative;
+}
+
+.multi-select-display {
+    min-height: 52px;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.multi-select-display:hover {
+    border-color: #cbd5e0;
+}
+
+.multi-select-display.active {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.placeholder {
+    color: #a0aec0;
+    font-size: 16px;
+}
+
+.crop-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.crop-tag-remove {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    margin-left: 4px;
+}
+
+.multi-select-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.multi-select-dropdown.active {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.checkbox-item:hover {
+    background: #f7fafc;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    cursor: pointer;
+    accent-color: #667eea;
+}
+
+.checkbox-item span {
+    font-size: 15px;
+    color: #2d3748;
+}
+
+/* ============================================
+   RADIO BUTTONS (STEP 5)
+   ============================================ */
+.radio-group {
+    display: flex;
+    gap: 16px;
+}
+
+.radio-card {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+}
+
+.radio-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.radio-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 16px;
+    background: #f7fafc;
+    border: 3px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.radio-card input[type="radio"]:checked + .radio-content {
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    border-color: #667eea;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.radio-icon {
+    font-size: 32px;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.radio-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* ============================================
+   ERROR MESSAGES
+   ============================================ */
+.error-message {
+    display: none;
+    color: #f56565;
+    font-size: 13px;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.submit-error {
+    display: none;
+    background: #fed7d7;
+    color: #c53030;
+    padding: 16px;
+    border-radius: 10px;
+    margin-top: 20px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.submit-error.show {
+    display: block;
+}
+
+/* ============================================
+   SUCCESS MESSAGE
+   ============================================ */
+.success-container {
+    display: none;
+    text-align: center;
+    padding: 40px 24px;
+}
+
+.success-container.show {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 48px;
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(72, 187, 120, 0.3);
+}
+
+.success-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 12px;
+}
+
+.success-text {
+    font-size: 16px;
+    color: #718096;
+}
+
+/* ============================================
+   NAVIGATION BUTTONS
+   ============================================ */
+.button-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    padding: 16px 20px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 12px;
+    z-index: 50;
+}
+
+.btn {
+    flex: 1;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    outline: none;
+}
+
+.btn-back {
+    background: #f7fafc;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.btn-back:hover {
+    background: #edf2f7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-back:active {
+    transform: translateY(0);
+}
+
+.btn-next,
+.btn-submit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+.btn-next:hover,
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+.btn-next:active,
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-submit {
+    display: none;
+}
+
+/* Hide/Show buttons based on step */
+.button-container.first-step .btn-back {
+    display: none;
+}
+
+.button-container.first-step .btn-next {
+    flex: 1;
+}
+
+.button-container.last-step .btn-next {
+    display: none;
+}
+
+.button-container.last-step .btn-submit {
+    display: flex;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 480px) {
+    .main-container {
+        padding: 16px;
+    }
+    
+    .form-container {
+        padding: 24px 20px;
+    }
+    
+    .step-title {
+        font-size: 20px;
+    }
+    
+    .radio-group {
+        flex-direction: column;
+    }
+    
+    .language-content {
+        padding: 16px;
+    }
+    
+    .language-flag {
+        font-size: 28px;
+    }
+    
+    .language-name {
+        font-size: 18px;
+    }
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+.btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn.loading::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
