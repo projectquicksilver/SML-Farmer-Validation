@@ -20,6 +20,8 @@ const translations = {
         locationSubtitle: "Just a few more details",
         stateLabel: "State",
         selectState: "Select your state",
+        stateGujarat: "Gujarat",
+        stateMaharashtra: "Maharashtra",
         districtLabel: "District",
         selectDistrict: "Select your district",
         placeLabel: "Village/Town (Optional)",
@@ -57,6 +59,8 @@ const translations = {
         locationSubtitle: "फक्त काही अधिक तपशील",
         stateLabel: "राज्य",
         selectState: "तुमचे राज्य निवडा",
+        stateGujarat: "गुजरात",
+        stateMaharashtra: "महाराष्ट्र",
         districtLabel: "जिल्हा",
         selectDistrict: "तुमचा जिल्हा निवडा",
         placeLabel: "गाव/शहर (पर्यायी)",
@@ -94,6 +98,8 @@ const translations = {
         locationSubtitle: "માત્ર થોડી વધુ વિગતો",
         stateLabel: "રાજ્ય",
         selectState: "તમારું રાજ્ય પસંદ કરો",
+        stateGujarat: "ગુજરાત",
+        stateMaharashtra: "મહારાષ્ટ્ર",
         districtLabel: "જિલ્લો",
         selectDistrict: "તમારો જિલ્લો પસંદ કરો",
         placeLabel: "ગામ/શહેર (વૈકલ્પિક)",
@@ -181,6 +187,16 @@ const totalSteps = 4;
 let selectedLanguage = 'English';
 let selectedCrops = [];
 
+// Crop mapping for translation
+const cropMapping = {
+    'Wheat': { English: 'Wheat', Marathi: 'गहू', Gujarati: 'ઘઉં' },
+    'Cotton': { English: 'Cotton', Marathi: 'कापूस', Gujarati: 'કપાસ' },
+    'Soybean': { English: 'Soybean', Marathi: 'सोयाबीन', Gujarati: 'સોયાબીન' },
+    'Groundnut': { English: 'Groundnut', Marathi: 'भुईमूग', Gujarati: 'મગફળી' },
+    'Maize': { English: 'Maize', Marathi: 'मका', Gujarati: 'મકાઈ' },
+    'Sugarcane': { English: 'Sugarcane', Marathi: 'ऊस', Gujarati: 'શેરડી' }
+};
+
 // ============================================
 // DOM ELEMENTS
 // ============================================
@@ -206,6 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
     setupEventListeners();
     updateUI();
+    
+    // Prevent form autofill/prefill
+    clearFormOnLoad();
 });
 
 function initializeApp() {
@@ -214,6 +233,31 @@ function initializeApp() {
     if (firstStep) {
         firstStep.classList.add('active');
     }
+}
+
+function clearFormOnLoad() {
+    // Clear all form inputs
+    document.querySelectorAll('input[type="text"], input[type="tel"], input[type="number"], textarea').forEach(input => {
+        input.value = '';
+    });
+    
+    // Uncheck all radio buttons and checkboxes
+    document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+        input.checked = false;
+    });
+    
+    // Reset all select dropdowns
+    document.querySelectorAll('select').forEach(select => {
+        select.selectedIndex = 0;
+    });
+    
+    // Clear selected crops
+    selectedCrops = [];
+    updateChipsDisplay();
+    
+    // Reset to step 1
+    currentStep = 1;
+    selectedLanguage = 'English';
 }
 
 // ============================================
@@ -293,6 +337,14 @@ function updateTranslations() {
             element.placeholder = t[key];
         }
     });
+    
+    // Update chips display with translated crop names
+    updateChipsDisplay();
+    
+    // Update district dropdown if state is selected
+    if (elements.stateSelect.value) {
+        handleStateChange();
+    }
 }
 
 // ============================================
@@ -546,12 +598,16 @@ function updateChipsDisplay() {
         placeholder.textContent = translations[selectedLanguage].cropsPlaceholder;
         elements.chipsContainer.appendChild(placeholder);
     } else {
-        selectedCrops.forEach(crop => {
+        selectedCrops.forEach(cropKey => {
             const chip = document.createElement('div');
             chip.className = 'chip';
+            
+            // Get translated crop name
+            const translatedCropName = cropMapping[cropKey][selectedLanguage] || cropKey;
+            
             chip.innerHTML = `
-                ${crop}
-                <button type="button" class="chip-remove" data-crop="${crop}">×</button>
+                ${translatedCropName}
+                <button type="button" class="chip-remove" data-crop="${cropKey}">×</button>
             `;
             elements.chipsContainer.appendChild(chip);
         });
