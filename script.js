@@ -187,6 +187,19 @@ const totalSteps = 4;
 let selectedLanguage = 'English';
 let selectedCrops = [];
 
+// Store form data progressively
+let formData = {
+    language: '',
+    name: '',
+    alternate_mobile: '',
+    crops: [],
+    land_acreage: '',
+    state: '',
+    district: '',
+    place: '',
+    used_sml_products: ''
+};
+
 // Crop mapping for translation
 const cropMapping = {
     'Wheat': { English: 'Wheat', Marathi: 'गहू', Gujarati: 'ઘઉં' },
@@ -216,19 +229,55 @@ const elements = {
 };
 
 // ============================================
+// WEBHOOK CONFIGURATION
+// ============================================
+const WEBHOOK_URL = 'http://localhost:5678/webhook-test/sml_farmer_validation';
+
+// ============================================
+// SEND DATA TO WEBHOOK
+// ============================================
+async function sendDataToWebhook(stepData, stepNumber) {
+    try {
+        const payload = {
+            step: stepNumber,
+            timestamp: new Date().toISOString(),
+            ...stepData
+        };
+
+        console.log(`Sending data for step ${stepNumber}:`, payload);
+
+        const response = await fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            console.log(`Step ${stepNumber} data sent successfully`);
+            return true;
+        } else {
+            console.warn(`Step ${stepNumber} webhook returned status: ${response.status}`);
+            return false;
+        }
+    } catch (error) {
+        console.error(`Error sending step ${stepNumber} data:`, error);
+        return false;
+    }
+}
+
+// ============================================
 // INITIALIZATION
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
     setupEventListeners();
     updateUI();
-    
-    // Prevent form autofill/prefill
     clearFormOnLoad();
 });
 
 function initializeApp() {
-    // Set first step as active
     const firstStep = document.querySelector('[data-step="1"]');
     if (firstStep) {
         firstStep.classList.add('active');
@@ -236,63 +285,66 @@ function initializeApp() {
 }
 
 function clearFormOnLoad() {
-    // Clear all form inputs
     document.querySelectorAll('input[type="text"], input[type="tel"], input[type="number"], textarea').forEach(input => {
         input.value = '';
     });
     
-    // Uncheck all radio buttons and checkboxes
     document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
         input.checked = false;
     });
     
-    // Reset all select dropdowns
     document.querySelectorAll('select').forEach(select => {
         select.selectedIndex = 0;
     });
     
-    // Clear selected crops
     selectedCrops = [];
     updateChipsDisplay();
     
-    // Reset to step 1
     currentStep = 1;
     selectedLanguage = 'English';
+    
+    // Reset form data
+    formData = {
+        language: '',
+        name: '',
+        alternate_mobile: '',
+        crops: [],
+        land_acreage: '',
+        state: '',
+        district: '',
+        place: '',
+        used_sml_products: ''
+    };
 }
 
 // ============================================
 // EVENT LISTENERS
 // ============================================
 function setupEventListeners() {
-    // CTA Button
     elements.ctaButton.addEventListener('click', handleContinue);
     
-    // Language selection
     document.querySelectorAll('input[name="language"]').forEach(input => {
         input.addEventListener('change', (e) => {
             selectedLanguage = e.target.value;
+            formData.language = e.target.value;
             updateTranslations();
         });
     });
     
-    // Chips input (crops)
     elements.chipsContainer.addEventListener('click', toggleChipsDropdown);
     
     document.querySelectorAll('#chipsDropdown input[type="checkbox"]').forEach(checkbox => {
         checkbox.addEventListener('change', handleCropSelection);
     });
     
-    // Close chips dropdown on outside click
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.chips-input')) {
             closeChipsDropdown();
         }
     });
     
-    // State/District cascade
     elements.stateSelect.addEventListener('change', handleStateChange);
     
-    // Input validation
     const nameInput = document.getElementById('name');
     const mobileInput = document.getElementById('alternate_mobile');
     const acreageInput = document.getElementById('land_acreage');
@@ -300,12 +352,14 @@ function setupEventListeners() {
     if (nameInput) {
         nameInput.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+            formData.name = e.target.value.trim();
         });
     }
     
     if (mobileInput) {
         mobileInput.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+            formData.alternate_mobile = e.target.value;
         });
     }
     
@@ -314,8 +368,24 @@ function setupEventListeners() {
             if (parseFloat(e.target.value) < 0) {
                 e.target.value = '';
             }
+            formData.land_acreage = e.target.value;
         });
     }
+    
+    // Listen for place input
+    const placeInput = document.getElementById('place');
+    if (placeInput) {
+        placeInput.addEventListener('input', (e) => {
+            formData.place = e.target.value.trim();
+        });
+    }
+    
+    // Listen for product usage selection
+    document.querySelectorAll('input[name="used_sml_products"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+            formData.used_sml_products = e.target.value;
+        });
+    });
 }
 
 // ============================================
@@ -338,10 +408,8 @@ function updateTranslations() {
         }
     });
     
-    // Update chips display with translated crop names
     updateChipsDisplay();
     
-    // Update district dropdown if state is selected
     if (elements.stateSelect.value) {
         handleStateChange();
     }
@@ -350,8 +418,14 @@ function updateTranslations() {
 // ============================================
 // NAVIGATION
 // ============================================
-function handleContinue() {
+async function handleContinue() {
     if (validateCurrentStep()) {
+        // Collect data for current step
+        const stepData = collectCurrentStepData();
+        
+        // Send data to webhook
+        await sendDataToWebhook(stepData, currentStep);
+        
         if (currentStep < totalSteps) {
             goToNextStep();
         } else {
@@ -360,13 +434,55 @@ function handleContinue() {
     }
 }
 
+function collectCurrentStepData() {
+    let stepData = {};
+    
+    switch (currentStep) {
+        case 1:
+            stepData = {
+                language: formData.language
+            };
+            break;
+        case 2:
+            stepData = {
+                language: formData.language,
+                name: formData.name,
+                alternate_mobile: formData.alternate_mobile
+            };
+            break;
+        case 3:
+            stepData = {
+                language: formData.language,
+                name: formData.name,
+                alternate_mobile: formData.alternate_mobile,
+                crops: formData.crops,
+                land_acreage: parseFloat(formData.land_acreage)
+            };
+            break;
+        case 4:
+            stepData = {
+                language: formData.language,
+                name: formData.name,
+                alternate_mobile: formData.alternate_mobile,
+                crops: formData.crops,
+                land_acreage: parseFloat(formData.land_acreage),
+                state: formData.state,
+                district: formData.district,
+                place: formData.place,
+                used_sml_products: formData.used_sml_products
+            };
+            break;
+    }
+    
+    return stepData;
+}
+
 function goToNextStep() {
     const currentStepEl = document.querySelector(`[data-step="${currentStep}"]`);
     const nextStep = currentStep + 1;
     const nextStepEl = document.querySelector(`[data-step="${nextStep}"]`);
     
     if (currentStepEl && nextStepEl) {
-        // Exit animation for current step
         currentStepEl.classList.add('exit-left');
         
         setTimeout(() => {
@@ -380,7 +496,6 @@ function goToNextStep() {
 }
 
 function updateUI() {
-    // Update step dots
     document.querySelectorAll('.step-dot').forEach((dot, index) => {
         dot.classList.remove('active', 'completed');
         if (index + 1 === currentStep) {
@@ -390,7 +505,6 @@ function updateUI() {
         }
     });
     
-    // Hide header and indicator after step 1
     if (currentStep > 1) {
         elements.appHeader.classList.add('hidden');
         elements.stepIndicator.classList.add('hidden');
@@ -399,7 +513,6 @@ function updateUI() {
         elements.stepIndicator.classList.remove('hidden');
     }
     
-    // Update CTA button text
     const t = translations[selectedLanguage];
     const ctaText = elements.ctaButton.querySelector('.cta-text');
     if (currentStep === totalSteps) {
@@ -585,6 +698,7 @@ function handleCropSelection(e) {
         selectedCrops = selectedCrops.filter(crop => crop !== value);
     }
     
+    formData.crops = selectedCrops;
     updateChipsDisplay();
 }
 
@@ -602,7 +716,6 @@ function updateChipsDisplay() {
             const chip = document.createElement('div');
             chip.className = 'chip';
             
-            // Get translated crop name
             const translatedCropName = cropMapping[cropKey][selectedLanguage] || cropKey;
             
             chip.innerHTML = `
@@ -612,17 +725,16 @@ function updateChipsDisplay() {
             elements.chipsContainer.appendChild(chip);
         });
         
-        // Add remove handlers
         elements.chipsContainer.querySelectorAll('.chip-remove').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const cropToRemove = btn.getAttribute('data-crop');
                 selectedCrops = selectedCrops.filter(crop => crop !== cropToRemove);
                 
-                // Uncheck checkbox
                 const checkbox = document.querySelector(`#chipsDropdown input[value="${cropToRemove}"]`);
                 if (checkbox) checkbox.checked = false;
                 
+                formData.crops = selectedCrops;
                 updateChipsDisplay();
             });
         });
@@ -635,6 +747,9 @@ function updateChipsDisplay() {
 function handleStateChange() {
     const selectedState = elements.stateSelect.value;
     const t = translations[selectedLanguage];
+    
+    formData.state = selectedState;
+    formData.district = ''; // Reset district when state changes
     
     elements.districtSelect.innerHTML = `<option value="">${t.selectDistrict}</option>`;
     
@@ -651,47 +766,29 @@ function handleStateChange() {
     } else {
         elements.districtSelect.disabled = true;
     }
+    
+    // Add district change listener
+    elements.districtSelect.addEventListener('change', (e) => {
+        formData.district = e.target.value;
+    });
 }
 
 // ============================================
 // FORM SUBMISSION
 // ============================================
 async function handleSubmit() {
-    // Prepare form data
-    const formData = {
-        language: selectedLanguage,
-        name: document.getElementById('name').value.trim(),
-        alternate_mobile: document.getElementById('alternate_mobile').value.trim(),
-        crops: selectedCrops,
-        land_acreage: parseFloat(document.getElementById('land_acreage').value),
-        state: elements.stateSelect.value,
-        district: elements.districtSelect.value,
-        place: document.getElementById('place').value.trim(),
-        used_sml_products: document.querySelector('input[name="used_sml_products"]:checked').value
-    };
-    
-    // Show loading state
     elements.ctaButton.classList.add('loading');
     elements.ctaButton.disabled = true;
     
     try {
-        const response = await fetch('http://localhost:5678/webhook-test/sml_farmer_validation', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
+        // Final submission with all data
+        const finalData = collectCurrentStepData();
+        await sendDataToWebhook(finalData, currentStep);
         
-        // Always show success screen regardless of response
-        // This ensures the thank you message appears even if webhook is not running
         showSuccessScreen();
-        
     } catch (error) {
         console.error('Submission error:', error);
-        // Still show success screen even if there's an error
-        // In production, you might want to handle this differently
-        showSuccessScreen();
+        showSuccessScreen(); // Still show success screen
     } finally {
         elements.ctaButton.classList.remove('loading');
         elements.ctaButton.disabled = false;
@@ -699,13 +796,11 @@ async function handleSubmit() {
 }
 
 function showSuccessScreen() {
-    // Hide current step
     const currentStepEl = document.querySelector(`[data-step="${currentStep}"]`);
     if (currentStepEl) {
         currentStepEl.classList.remove('active');
     }
     
-    // Show success screen
     elements.successScreen.classList.add('active');
     elements.ctaContainer.style.display = 'none';
     elements.stepIndicator.classList.add('hidden');
