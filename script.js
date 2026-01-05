@@ -234,7 +234,10 @@ const elements = {
 // IMPORTANT: Replace this with your actual webhook URL
 // For n8n, it should look like: 'https://your-n8n-instance.com/webhook/sml_farmer_validation'
 // For local testing with ngrok: 'https://your-ngrok-url.ngrok.io/webhook-test/sml_farmer_validation'
-const WEBHOOK_URL = 'https://n8n.srv1152566.hstgr.cloud/webhook-test/84ec9b62-a32c-45e0-8068-a796a5682eba';
+const WEBHOOK_URL = 'https://your-webhook-url.com/webhook/sml_farmer_validation';
+
+// Set to true to enable webhook, false to disable for testing
+const ENABLE_WEBHOOK = true;
 
 // Webhook timeout (in milliseconds)
 const WEBHOOK_TIMEOUT = 5000; // 5 seconds
@@ -243,17 +246,65 @@ const WEBHOOK_TIMEOUT = 5000; // 5 seconds
 // SEND DATA TO WEBHOOK (NON-BLOCKING)
 // ============================================
 function sendDataToWebhook(stepData, stepNumber) {
+    if (!ENABLE_WEBHOOK) {
+        console.log(`Webhook disabled. Step ${stepNumber} data:`, stepData);
+        return true;
+    }
+
+    // Only send on step 2 (steps 1+2 together), step 3, and step 4
+    if (stepNumber === 1) {
+        console.log(`Step 1: Data collected, will send with Step 2`);
+        return true;
+    }
+
     // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT);
 
-    const payload = {
-        step: stepNumber,
-        timestamp: new Date().toISOString(),
-        ...stepData
-    };
-
-    console.log(`Sending data for step ${stepNumber}:`, payload);
+    let payload;
+    
+    if (stepNumber === 2) {
+        // Send steps 1 and 2 together
+        payload = {
+            step: 2,
+            combined_steps: [1, 2],
+            timestamp: new Date().toISOString(),
+            language: formData.language,
+            name: formData.name,
+            alternate_mobile: formData.alternate_mobile
+        };
+        console.log('📤 Sending Steps 1 & 2 combined:', payload);
+    } else if (stepNumber === 3) {
+        // Send step 3 separately
+        payload = {
+            step: 3,
+            timestamp: new Date().toISOString(),
+            language: formData.language,
+            name: formData.name,
+            alternate_mobile: formData.alternate_mobile,
+            crops: formData.crops,
+            land_acreage: parseFloat(formData.land_acreage) || 0
+        };
+        console.log('📤 Sending Step 3:', payload);
+    } else if (stepNumber === 4) {
+        // Send step 4 separately (complete form)
+        payload = {
+            step: 4,
+            timestamp: new Date().toISOString(),
+            language: formData.language,
+            name: formData.name,
+            alternate_mobile: formData.alternate_mobile,
+            crops: formData.crops,
+            land_acreage: parseFloat(formData.land_acreage) || 0,
+            state: formData.state,
+            district: formData.district,
+            place: formData.place,
+            used_sml_products: formData.used_sml_products
+        };
+        console.log('📤 Sending Step 4 (Complete Form):', payload);
+    } else {
+        return true;
+    }
 
     // Send data asynchronously without blocking UI
     fetch(WEBHOOK_URL, {
@@ -267,17 +318,23 @@ function sendDataToWebhook(stepData, stepNumber) {
     .then(response => {
         clearTimeout(timeoutId);
         if (response.ok) {
-            console.log(`Step ${stepNumber} data sent successfully`);
+            console.log(`✅ Step ${stepNumber} webhook sent successfully`);
+            return response.json().catch(() => null);
         } else {
-            console.warn(`Step ${stepNumber} webhook returned status: ${response.status}`);
+            console.warn(`⚠️ Step ${stepNumber} webhook returned status: ${response.status}`);
+        }
+    })
+    .then(data => {
+        if (data) {
+            console.log('Webhook response:', data);
         }
     })
     .catch(error => {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
-            console.warn(`Step ${stepNumber} webhook request timed out`);
+            console.warn(`⏱️ Step ${stepNumber} webhook request timed out`);
         } else {
-            console.error(`Error sending step ${stepNumber} data:`, error);
+            console.error(`❌ Error sending step ${stepNumber} data:`, error);
         }
     });
 
