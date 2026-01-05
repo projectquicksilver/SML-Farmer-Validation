@@ -234,7 +234,7 @@ const elements = {
 // IMPORTANT: Replace this with your actual webhook URL
 // For n8n, it should look like: 'https://your-n8n-instance.com/webhook/sml_farmer_validation'
 // For local testing with ngrok: 'https://your-ngrok-url.ngrok.io/webhook-test/sml_farmer_validation'
-const WEBHOOK_URL = 'https://your-webhook-url.com/webhook/sml_farmer_validation';
+const WEBHOOK_URL = 'https://n8n.srv1152566.hstgr.cloud/webhook-test/84ec9b62-a32c-45e0-8068-a796a5682eba';
 
 // Set to true to enable webhook, false to disable for testing
 const ENABLE_WEBHOOK = true;
