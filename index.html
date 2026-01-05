@@ -1,0 +1,753 @@
+import React, { useState } from 'react';
+import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
+
+const translations = {
+  English: {
+    language: "Select Language",
+    name: "Name",
+    alternateMobile: "Alternate Mobile Number",
+    crops: "Select Crops",
+    landAcreage: "Land Acreage (in acres)",
+    state: "State",
+    district: "District",
+    place: "Place (Optional)",
+    usedProducts: "Have you ever used SML Products before?",
+    yes: "Yes",
+    no: "No",
+    next: "Next",
+    back: "Back",
+    submit: "Submit",
+    step: "Step",
+    of: "of"
+  },
+  Marathi: {
+    language: "भाषा निवडा",
+    name: "नाव",
+    alternateMobile: "पर्यायी मोबाईल नंबर",
+    crops: "पीक निवडा",
+    landAcreage: "जमीन क्षेत्र (एकरमध्ये)",
+    state: "राज्य",
+    district: "जिल्हा",
+    place: "ठिकाण (पर्यायी)",
+    usedProducts: "तुम्ही यापूर्वी SML उत्पादने वापरली आहेत का?",
+    yes: "होय",
+    no: "नाही",
+    next: "पुढे",
+    back: "मागे",
+    submit: "सबमिट करा",
+    step: "चरण",
+    of: "च्या"
+  },
+  Gujarati: {
+    language: "ભાષા પસંદ કરો",
+    name: "નામ",
+    alternateMobile: "વૈકલ્પિક મોબાઇલ નંબર",
+    crops: "પાક પસંદ કરો",
+    landAcreage: "જમીન વિસ્તાર (એકરમાં)",
+    state: "રાજ્ય",
+    district: "જિલ્લો",
+    place: "સ્થળ (વૈકલ્પિક)",
+    usedProducts: "શું તમે પહેલાં ક્યારેય SML ઉત્પાદનોનો ઉપયોગ કર્યો છે?",
+    yes: "હા",
+    no: "ના",
+    next: "આગળ",
+    back: "પાછળ",
+    submit: "સબમિટ કરો",
+    step: "પગલું",
+    of: "ના"
+  }
+};
+
+const cropOptions = [
+  "Wheat", "Cotton", "Soybean", "Groundnut", "Maize", "Sugarcane"
+];
+
+const stateDistrictData = {
+  Gujarat: ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar"],
+  Maharashtra: ["Pune", "Nashik", "Nagpur", "Ahmednagar", "Kolhapur"]
+};
+
+export default function SMLFarmerValidation() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [language, setLanguage] = useState('English');
+  const [formData, setFormData] = useState({
+    language: 'English',
+    name: '',
+    alternate_mobile: '',
+    crops: [],
+    land_acreage: '',
+    state: '',
+    district: '',
+    place: '',
+    used_sml_products: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+  const [showCropDropdown, setShowCropDropdown] = useState(false);
+
+  const t = translations[language];
+
+  const validateStep = (step) => {
+    const newErrors = {};
+
+    if (step === 1) {
+      if (!formData.name.trim()) {
+        newErrors.name = 'Name is required';
+      } else if (formData.name.trim().length < 2) {
+        newErrors.name = 'Name must be at least 2 characters';
+      } else if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+        newErrors.name = 'Name can only contain letters and spaces';
+      }
+
+      if (!formData.alternate_mobile) {
+        newErrors.alternate_mobile = 'Mobile number is required';
+      } else if (!/^\d{10}$/.test(formData.alternate_mobile)) {
+        newErrors.alternate_mobile = 'Mobile number must be exactly 10 digits';
+      }
+    }
+
+    if (step === 2) {
+      if (formData.crops.length === 0) {
+        newErrors.crops = 'Please select at least one crop';
+      }
+
+      if (!formData.land_acreage) {
+        newErrors.land_acreage = 'Land acreage is required';
+      } else if (parseFloat(formData.land_acreage) <= 0) {
+        newErrors.land_acreage = 'Land acreage must be greater than 0';
+      }
+    }
+
+    if (step === 3) {
+      if (!formData.state) {
+        newErrors.state = 'State is required';
+      }
+      if (!formData.district) {
+        newErrors.district = 'District is required';
+      }
+    }
+
+    if (step === 4) {
+      if (!formData.used_sml_products) {
+        newErrors.used_sml_products = 'Please select an option';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(currentStep + 1);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(currentStep - 1);
+    setErrors({});
+    window.scrollTo(0, 0);
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' });
+    }
+  };
+
+  const handleLanguageChange = (lang) => {
+    setLanguage(lang);
+    handleInputChange('language', lang);
+  };
+
+  const toggleCrop = (crop) => {
+    const newCrops = formData.crops.includes(crop)
+      ? formData.crops.filter(c => c !== crop)
+      : [...formData.crops, crop];
+    handleInputChange('crops', newCrops);
+  };
+
+  const removeCrop = (crop) => {
+    handleInputChange('crops', formData.crops.filter(c => c !== crop));
+  };
+
+  const handleStateChange = (state) => {
+    handleInputChange('state', state);
+    handleInputChange('district', '');
+  };
+
+  const handleSubmit = async () => {
+    if (!validateStep(4)) return;
+
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      const response = await fetch('http://localhost:5678/webhook-test/sml_farmer_validation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          land_acreage: parseFloat(formData.land_acreage)
+        })
+      });
+
+      if (response.ok) {
+        setSubmitStatus('success');
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (submitStatus === 'success') {
+    return (
+      <div style={styles.container}>
+        <div style={styles.card}>
+          <div style={styles.successIcon}>
+            <Check size={64} color="#10b981" />
+          </div>
+          <h2 style={styles.successTitle}>Success!</h2>
+          <p style={styles.successText}>Your farmer validation has been submitted successfully.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.logoSection}>
+        <div style={styles.logoPlaceholder}>
+          <span style={styles.logoText}>SML</span>
+        </div>
+        <h1 style={styles.title}>Farmer Validation</h1>
+      </div>
+
+      <div style={styles.progressContainer}>
+        <div style={styles.progressBar}>
+          <div style={{...styles.progressFill, width: `${(currentStep / 4) * 100}%`}}></div>
+        </div>
+        <p style={styles.progressText}>{t.step} {currentStep} {t.of} 4</p>
+      </div>
+
+      <div style={styles.card}>
+        {currentStep === 1 && (
+          <div style={styles.stepContainer}>
+            <h2 style={styles.stepTitle}>Language & Identity</h2>
+            
+            <div style={styles.formGroup}>
+              <label style={styles.label}>{t.language}</label>
+              <select
+                style={styles.select}
+                value={language}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+              >
+                <option value="English">English</option>
+                <option value="Marathi">मराठी (Marathi)</option>
+                <option value="Gujarati">ગુજરાતી (Gujarati)</option>
+              </select>
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>{t.name} *</label>
+              <input
+                type="text"
+                style={{...styles.input, ...(errors.name && styles.inputError)}}
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder={t.name}
+              />
+              {errors.name && <span style={styles.errorText}>{errors.name}</span>}
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>{t.alternateMobile} *</label>
+              <input
+                type="tel"
+                style={{...styles.input, ...(errors.alternate_mobile && styles.inputError)}}
+                value={formData.alternate_mobile}
+                onChange={(e) => handleInputChange('alternate_mobile', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="10-digit mobile number"
+              />
+              {errors.alternate_mobile && <span style={styles.errorText}>{errors.alternate_mobile}</span>}
+            </div>
+          </div>
+        )}
+
+        {currentStep === 2 && (
+          <div style={styles.stepContainer}>
+            <h2 style={styles.stepTitle}>Farming Details</h2>
+            
+            <div style={styles.formGroup}>
+              <label style={styles.label}>{t.crops} *</label>
+              <div style={styles.multiSelectContainer}>
+                <div
+                  style={{...styles.multiSelectInput, ...(errors.crops && styles.inputError)}}
+                  onClick={() => setShowCropDropdown(!showCropDropdown)}
+                >
+                  {formData.crops.length === 0 ? (
+                    <span style={styles.placeholder}>Select crops...</span>
+                  ) : (
+                    <div style={styles.tagContainer}>
+                      {formData.crops.map(crop => (
+                        <span key={crop} style={styles.tag}>
+                          {crop}
+                          <button
+                            style={styles.tagRemove}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeCrop(crop);
+                            }}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {showCropDropdown && (
+                  <div style={styles.dropdown}>
+                    {cropOptions.map(crop => (
+                      <div
+                        key={crop}
+                        style={styles.dropdownItem}
+                        onClick={() => toggleCrop(crop)}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.crops.includes(crop)}
+                          readOnly
+                          style={styles.checkbox}
+                        />
+                        <span>{crop}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {errors.crops && <span style={styles.errorText}>{errors.crops}</span>}
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>{t.landAcreage} *</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                style={{...styles.input, ...(errors.land_acreage && styles.inputError)}}
+                value={formData.land_acreage}
+                onChange={(e) => handleInputChange('land_acreage', e.target.value)}
+                placeholder="e.g., 2.5"
+              />
+              {errors.land_acreage && <span style={styles.errorText}>{errors.land_acreage}</span>}
+            </div>
+          </div>
+        )}
+
+        {currentStep === 3 && (
+          <div style={styles.stepContainer}>
+            <h2 style={styles.stepTitle}>Location</h2>
+            
+            <div style={styles.formGroup}>
+              <label style={styles.label}>{t.state} *</label>
+              <select
+                style={{...styles.select, ...(errors.state && styles.inputError)}}
+                value={formData.state}
+                onChange={(e) => handleStateChange(e.target.value)}
+              >
+                <option value="">Select State</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Maharashtra">Maharashtra</option>
+              </select>
+              {errors.state && <span style={styles.errorText}>{errors.state}</span>}
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>{t.district} *</label>
+              <select
+                style={{...styles.select, ...(errors.district && styles.inputError)}}
+                value={formData.district}
+                onChange={(e) => handleInputChange('district', e.target.value)}
+                disabled={!formData.state}
+              >
+                <option value="">Select District</option>
+                {formData.state && stateDistrictData[formData.state].map(district => (
+                  <option key={district} value={district}>{district}</option>
+                ))}
+              </select>
+              {errors.district && <span style={styles.errorText}>{errors.district}</span>}
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>{t.place}</label>
+              <input
+                type="text"
+                style={styles.input}
+                value={formData.place}
+                onChange={(e) => handleInputChange('place', e.target.value)}
+                placeholder={t.place}
+              />
+            </div>
+          </div>
+        )}
+
+        {currentStep === 4 && (
+          <div style={styles.stepContainer}>
+            <h2 style={styles.stepTitle}>Product Usage</h2>
+            
+            <div style={styles.formGroup}>
+              <label style={styles.label}>{t.usedProducts} *</label>
+              <div style={styles.radioGroup}>
+                <label style={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="used_products"
+                    value="Yes"
+                    checked={formData.used_sml_products === 'Yes'}
+                    onChange={(e) => handleInputChange('used_sml_products', e.target.value)}
+                    style={styles.radio}
+                  />
+                  <span>{t.yes}</span>
+                </label>
+                <label style={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="used_products"
+                    value="No"
+                    checked={formData.used_sml_products === 'No'}
+                    onChange={(e) => handleInputChange('used_sml_products', e.target.value)}
+                    style={styles.radio}
+                  />
+                  <span>{t.no}</span>
+                </label>
+              </div>
+              {errors.used_sml_products && <span style={styles.errorText}>{errors.used_sml_products}</span>}
+            </div>
+
+            {submitStatus === 'error' && (
+              <div style={styles.errorMessage}>
+                Failed to submit. Please check your connection and try again.
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div style={styles.buttonContainer}>
+        {currentStep > 1 && (
+          <button style={styles.backButton} onClick={handleBack}>
+            <ChevronLeft size={20} />
+            {t.back}
+          </button>
+        )}
+        {currentStep < 4 ? (
+          <button style={styles.nextButton} onClick={handleNext}>
+            {t.next}
+            <ChevronRight size={20} />
+          </button>
+        ) : (
+          <button
+            style={{...styles.submitButton, ...(isSubmitting && styles.submitButtonDisabled)}}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Submitting...' : t.submit}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  container: {
+    minHeight: '100vh',
+    backgroundColor: '#f3f4f6',
+    padding: '16px',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+  },
+  logoSection: {
+    backgroundColor: '#ffffff',
+    padding: '24px',
+    textAlign: 'center',
+    borderRadius: '12px',
+    marginBottom: '16px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+  },
+  logoPlaceholder: {
+    width: '80px',
+    height: '80px',
+    backgroundColor: '#10b981',
+    borderRadius: '12px',
+    margin: '0 auto 16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  logoText: {
+    color: '#ffffff',
+    fontSize: '32px',
+    fontWeight: 'bold'
+  },
+  title: {
+    fontSize: '24px',
+    fontWeight: '600',
+    color: '#1f2937',
+    margin: 0
+  },
+  progressContainer: {
+    marginBottom: '16px'
+  },
+  progressBar: {
+    height: '8px',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px',
+    overflow: 'hidden',
+    marginBottom: '8px'
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#10b981',
+    transition: 'width 0.3s ease'
+  },
+  progressText: {
+    textAlign: 'center',
+    fontSize: '14px',
+    color: '#6b7280',
+    margin: 0
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    padding: '24px',
+    marginBottom: '80px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+  },
+  stepContainer: {
+    animation: 'fadeIn 0.3s ease'
+  },
+  stepTitle: {
+    fontSize: '20px',
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: '24px',
+    marginTop: 0
+  },
+  formGroup: {
+    marginBottom: '20px'
+  },
+  label: {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: '8px'
+  },
+  input: {
+    width: '100%',
+    padding: '12px',
+    fontSize: '16px',
+    border: '2px solid #e5e7eb',
+    borderRadius: '8px',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.2s',
+    outline: 'none'
+  },
+  inputError: {
+    borderColor: '#ef4444'
+  },
+  select: {
+    width: '100%',
+    padding: '12px',
+    fontSize: '16px',
+    border: '2px solid #e5e7eb',
+    borderRadius: '8px',
+    boxSizing: 'border-box',
+    backgroundColor: '#ffffff',
+    outline: 'none'
+  },
+  multiSelectContainer: {
+    position: 'relative'
+  },
+  multiSelectInput: {
+    width: '100%',
+    minHeight: '48px',
+    padding: '8px 12px',
+    border: '2px solid #e5e7eb',
+    borderRadius: '8px',
+    boxSizing: 'border-box',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center'
+  },
+  placeholder: {
+    color: '#9ca3af'
+  },
+  tagContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '8px'
+  },
+  tag: {
+    backgroundColor: '#10b981',
+    color: '#ffffff',
+    padding: '4px 8px',
+    borderRadius: '6px',
+    fontSize: '14px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px'
+  },
+  tagRemove: {
+    background: 'none',
+    border: 'none',
+    color: '#ffffff',
+    fontSize: '18px',
+    cursor: 'pointer',
+    padding: '0',
+    lineHeight: '1'
+  },
+  dropdown: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: '#ffffff',
+    border: '2px solid #e5e7eb',
+    borderRadius: '8px',
+    marginTop: '4px',
+    maxHeight: '200px',
+    overflowY: 'auto',
+    zIndex: 10,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+  },
+  dropdownItem: {
+    padding: '12px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    transition: 'background-color 0.2s'
+  },
+  checkbox: {
+    width: '18px',
+    height: '18px',
+    cursor: 'pointer'
+  },
+  radioGroup: {
+    display: 'flex',
+    gap: '16px'
+  },
+  radioLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    color: '#374151'
+  },
+  radio: {
+    width: '20px',
+    height: '20px',
+    cursor: 'pointer'
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: '14px',
+    marginTop: '4px',
+    display: 'block'
+  },
+  errorMessage: {
+    backgroundColor: '#fee2e2',
+    color: '#991b1b',
+    padding: '12px',
+    borderRadius: '8px',
+    fontSize: '14px',
+    marginTop: '16px'
+  },
+  buttonContainer: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: '16px',
+    backgroundColor: '#ffffff',
+    boxShadow: '0 -2px 8px rgba(0,0,0,0.08)',
+    display: 'flex',
+    gap: '12px',
+    justifyContent: 'space-between'
+  },
+  backButton: {
+    flex: 1,
+    padding: '14px 24px',
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#374151',
+    backgroundColor: '#f3f4f6',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '4px'
+  },
+  nextButton: {
+    flex: 1,
+    padding: '14px 24px',
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#ffffff',
+    backgroundColor: '#10b981',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '4px'
+  },
+  submitButton: {
+    flex: 1,
+    padding: '14px 24px',
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#ffffff',
+    backgroundColor: '#10b981',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer'
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
+    cursor: 'not-allowed'
+  },
+  successIcon: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '16px'
+  },
+  successTitle: {
+    fontSize: '24px',
+    fontWeight: '600',
+    color: '#1f2937',
+    textAlign: 'center',
+    marginBottom: '8px'
+  },
+  successText: {
+    fontSize: '16px',
+    color: '#6b7280',
+    textAlign: 'center',
+    margin: 0
+  }
+};
