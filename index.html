@@ -7,272 +7,240 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Header with Logo -->
-    <header class="header">
-        <div class="logo-container">
-            <!-- Placeholder for sml_logo.png -->
-            <img src="sml_logo.png" alt="SML Logo" class="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="logo-fallback">
-                <span class="logo-text">SML</span>
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Logo Section (Only on Step 1) -->
+        <header class="app-header" id="appHeader">
+            <div class="logo-wrapper">
+                <img src="sml_logo.png" alt="SML" class="app-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="logo-placeholder">SML</div>
             </div>
-        </div>
-        <h1 class="header-title">Farmer Validation</h1>
-    </header>
+        </header>
 
-    <!-- Main Container -->
-    <main class="main-container">
         <!-- Progress Indicator -->
-        <div class="progress-section">
-            <div class="progress-dots">
-                <span class="dot active" data-step="1"></span>
-                <span class="dot" data-step="2"></span>
-                <span class="dot" data-step="3"></span>
-                <span class="dot" data-step="4"></span>
-                <span class="dot" data-step="5"></span>
-            </div>
-            <p class="progress-text">
-                <span id="currentStepText">Step 1 of 5</span>
-            </p>
+        <div class="step-indicator" id="stepIndicator">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
         </div>
 
-        <!-- Form Container -->
-        <div class="form-container">
-            <form id="farmerForm" novalidate>
-                
-                <!-- Step 1: Language Selection -->
-                <div class="form-step active" data-step="1">
-                    <div class="step-header">
-                        <div class="step-icon">🌐</div>
-                        <h2 class="step-title" data-translate="selectLanguage">Select Your Language</h2>
-                        <p class="step-subtitle" data-translate="languageSubtitle">Choose your preferred language</p>
-                    </div>
+        <!-- Form Steps Container -->
+        <div class="steps-wrapper" id="stepsWrapper">
+
+            <!-- STEP 1: Language Selection -->
+            <div class="step-screen active" data-step="1">
+                <div class="screen-content">
+                    <h1 class="screen-title" data-translate="welcomeTitle">Welcome to SML</h1>
+                    <p class="screen-subtitle" data-translate="selectLanguage">Select your preferred language</p>
                     
-                    <div class="language-options">
-                        <label class="language-card">
+                    <div class="selection-cards">
+                        <label class="selection-card">
                             <input type="radio" name="language" value="English" required>
-                            <div class="language-content">
-                                <span class="language-flag">🇬🇧</span>
-                                <span class="language-name">English</span>
+                            <div class="card-content">
+                                <div class="card-icon">EN</div>
+                                <div class="card-text">
+                                    <div class="card-primary">English</div>
+                                    <div class="card-secondary">English</div>
+                                </div>
+                                <div class="card-checkmark">✓</div>
                             </div>
                         </label>
-                        
-                        <label class="language-card">
+
+                        <label class="selection-card">
                             <input type="radio" name="language" value="Marathi">
-                            <div class="language-content">
-                                <span class="language-flag">🇮🇳</span>
-                                <span class="language-name">मराठी</span>
+                            <div class="card-content">
+                                <div class="card-icon">मर</div>
+                                <div class="card-text">
+                                    <div class="card-primary">Marathi</div>
+                                    <div class="card-secondary">मराठी</div>
+                                </div>
+                                <div class="card-checkmark">✓</div>
                             </div>
                         </label>
-                        
-                        <label class="language-card">
+
+                        <label class="selection-card">
                             <input type="radio" name="language" value="Gujarati">
-                            <div class="language-content">
-                                <span class="language-flag">🇮🇳</span>
-                                <span class="language-name">ગુજરાતી</span>
+                            <div class="card-content">
+                                <div class="card-icon">ગુ</div>
+                                <div class="card-text">
+                                    <div class="card-primary">Gujarati</div>
+                                    <div class="card-secondary">ગુજરાતી</div>
+                                </div>
+                                <div class="card-checkmark">✓</div>
                             </div>
                         </label>
                     </div>
-                    <span class="error-message" id="error-language"></span>
+                    <span class="error-text" id="error-language"></span>
                 </div>
+            </div>
 
-                <!-- Step 2: Personal Details -->
-                <div class="form-step" data-step="2">
-                    <div class="step-header">
-                        <div class="step-icon">👤</div>
-                        <h2 class="step-title" data-translate="personalDetails">Personal Details</h2>
-                        <p class="step-subtitle" data-translate="personalSubtitle">Tell us about yourself</p>
-                    </div>
+            <!-- STEP 2: Personal Details -->
+            <div class="step-screen" data-step="2">
+                <div class="screen-content">
+                    <h1 class="screen-title" data-translate="personalTitle">Let's get to know you</h1>
+                    <p class="screen-subtitle" data-translate="personalSubtitle">Enter your basic information</p>
                     
-                    <div class="form-group">
-                        <label class="form-label" data-translate="name">Name *</label>
-                        <input 
-                            type="text" 
-                            id="name" 
-                            name="name" 
-                            class="form-input" 
-                            data-translate-placeholder="namePlaceholder"
-                            placeholder="Enter your full name"
-                            required
-                        >
-                        <span class="error-message" id="error-name"></span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" data-translate="alternateMobile">Alternate Mobile Number *</label>
-                        <input 
-                            type="tel" 
-                            id="alternate_mobile" 
-                            name="alternate_mobile" 
-                            class="form-input" 
-                            placeholder="9876543210"
-                            maxlength="10"
-                            required
-                        >
-                        <span class="error-message" id="error-alternate_mobile"></span>
-                    </div>
-                </div>
-
-                <!-- Step 3: Farming Details -->
-                <div class="form-step" data-step="3">
-                    <div class="step-header">
-                        <div class="step-icon">🌾</div>
-                        <h2 class="step-title" data-translate="farmingDetails">Farming Details</h2>
-                        <p class="step-subtitle" data-translate="farmingSubtitle">Your crops and land information</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" data-translate="crops">Select Crops *</label>
-                        <div class="multi-select-wrapper">
-                            <div class="multi-select-display" id="cropDisplay">
-                                <span class="placeholder" data-translate="cropsPlaceholder">Select your crops...</span>
-                            </div>
-                            <div class="multi-select-dropdown" id="cropDropdown">
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="crops" value="Wheat">
-                                    <span>Wheat</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="crops" value="Cotton">
-                                    <span>Cotton</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="crops" value="Soybean">
-                                    <span>Soybean</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="crops" value="Groundnut">
-                                    <span>Groundnut</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="crops" value="Maize">
-                                    <span>Maize</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="crops" value="Sugarcane">
-                                    <span>Sugarcane</span>
-                                </label>
-                            </div>
+                    <div class="form-fields">
+                        <div class="field-group">
+                            <label class="field-label" data-translate="nameLabel">Your Name</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                class="field-input" 
+                                data-translate-placeholder="namePlaceholder"
+                                placeholder="Enter your full name"
+                            >
+                            <span class="error-text" id="error-name"></span>
                         </div>
-                        <span class="error-message" id="error-crops"></span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" data-translate="landAcreage">Land Acreage (in acres) *</label>
-                        <input 
-                            type="number" 
-                            id="land_acreage" 
-                            name="land_acreage" 
-                            class="form-input" 
-                            data-translate-placeholder="landPlaceholder"
-                            placeholder="e.g., 2.5"
-                            step="0.1"
-                            min="0"
-                            required
-                        >
-                        <span class="error-message" id="error-land_acreage"></span>
-                    </div>
-                </div>
 
-                <!-- Step 4: Location -->
-                <div class="form-step" data-step="4">
-                    <div class="step-header">
-                        <div class="step-icon">📍</div>
-                        <h2 class="step-title" data-translate="location">Location</h2>
-                        <p class="step-subtitle" data-translate="locationSubtitle">Where is your farm located?</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" data-translate="state">State *</label>
-                        <select id="state" name="state" class="form-select" required>
-                            <option value="" data-translate="selectState">Select State</option>
-                            <option value="Gujarat">Gujarat</option>
-                            <option value="Maharashtra">Maharashtra</option>
-                        </select>
-                        <span class="error-message" id="error-state"></span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" data-translate="district">District *</label>
-                        <select id="district" name="district" class="form-select" disabled required>
-                            <option value="" data-translate="selectDistrict">Select District</option>
-                        </select>
-                        <span class="error-message" id="error-district"></span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" data-translate="place">Place (Optional)</label>
-                        <input 
-                            type="text" 
-                            id="place" 
-                            name="place" 
-                            class="form-input" 
-                            data-translate-placeholder="placePlaceholder"
-                            placeholder="Enter your village/town"
-                        >
-                    </div>
-                </div>
-
-                <!-- Step 5: Product Usage -->
-                <div class="form-step" data-step="5">
-                    <div class="step-header">
-                        <div class="step-icon">✨</div>
-                        <h2 class="step-title" data-translate="productUsage">Product Usage</h2>
-                        <p class="step-subtitle" data-translate="productSubtitle">Your experience with SML</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" data-translate="usedProducts">Have you ever used SML Products before? *</label>
-                        <div class="radio-group">
-                            <label class="radio-card">
-                                <input type="radio" name="used_sml_products" value="Yes" required>
-                                <div class="radio-content">
-                                    <span class="radio-icon">✓</span>
-                                    <span class="radio-text" data-translate="yes">Yes</span>
-                                </div>
-                            </label>
-                            
-                            <label class="radio-card">
-                                <input type="radio" name="used_sml_products" value="No">
-                                <div class="radio-content">
-                                    <span class="radio-icon">✗</span>
-                                    <span class="radio-text" data-translate="no">No</span>
-                                </div>
-                            </label>
+                        <div class="field-group">
+                            <label class="field-label" data-translate="mobileLabel">Mobile Number</label>
+                            <input 
+                                type="tel" 
+                                id="alternate_mobile" 
+                                class="field-input" 
+                                placeholder="10-digit mobile number"
+                                maxlength="10"
+                            >
+                            <span class="error-text" id="error-alternate_mobile"></span>
                         </div>
-                        <span class="error-message" id="error-used_sml_products"></span>
                     </div>
                 </div>
+            </div>
 
-            </form>
+            <!-- STEP 3: Farming Details -->
+            <div class="step-screen" data-step="3">
+                <div class="screen-content">
+                    <h1 class="screen-title" data-translate="farmTitle">About your farm</h1>
+                    <p class="screen-subtitle" data-translate="farmSubtitle">Tell us what you grow</p>
+                    
+                    <div class="form-fields">
+                        <div class="field-group">
+                            <label class="field-label" data-translate="cropsLabel">Select Your Crops</label>
+                            <div class="chips-input" id="chipsInput">
+                                <div class="chips-container" id="chipsContainer">
+                                    <span class="chips-placeholder" data-translate="cropsPlaceholder">Tap to select crops</span>
+                                </div>
+                            </div>
+                            <div class="chips-dropdown" id="chipsDropdown">
+                                <label class="chip-option"><input type="checkbox" value="Wheat"><span>Wheat</span></label>
+                                <label class="chip-option"><input type="checkbox" value="Cotton"><span>Cotton</span></label>
+                                <label class="chip-option"><input type="checkbox" value="Soybean"><span>Soybean</span></label>
+                                <label class="chip-option"><input type="checkbox" value="Groundnut"><span>Groundnut</span></label>
+                                <label class="chip-option"><input type="checkbox" value="Maize"><span>Maize</span></label>
+                                <label class="chip-option"><input type="checkbox" value="Sugarcane"><span>Sugarcane</span></label>
+                            </div>
+                            <span class="error-text" id="error-crops"></span>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" data-translate="acreageLabel">Land Area (in acres)</label>
+                            <input 
+                                type="number" 
+                                id="land_acreage" 
+                                class="field-input" 
+                                data-translate-placeholder="acreagePlaceholder"
+                                placeholder="e.g., 2.5"
+                                step="0.1"
+                                min="0"
+                            >
+                            <span class="error-text" id="error-land_acreage"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Location & Product Usage -->
+            <div class="step-screen" data-step="4">
+                <div class="screen-content">
+                    <h1 class="screen-title" data-translate="locationTitle">Almost done!</h1>
+                    <p class="screen-subtitle" data-translate="locationSubtitle">Just a few more details</p>
+                    
+                    <div class="form-fields">
+                        <div class="field-group">
+                            <label class="field-label" data-translate="stateLabel">State</label>
+                            <select id="state" class="field-select">
+                                <option value="" data-translate="selectState">Select your state</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                            </select>
+                            <span class="error-text" id="error-state"></span>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" data-translate="districtLabel">District</label>
+                            <select id="district" class="field-select" disabled>
+                                <option value="" data-translate="selectDistrict">Select your district</option>
+                            </select>
+                            <span class="error-text" id="error-district"></span>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" data-translate="placeLabel">Village/Town (Optional)</label>
+                            <input 
+                                type="text" 
+                                id="place" 
+                                class="field-input" 
+                                data-translate-placeholder="placePlaceholder"
+                                placeholder="Enter your location"
+                            >
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" data-translate="productLabel">Have you used SML products?</label>
+                            <div class="selection-cards horizontal">
+                                <label class="selection-card compact">
+                                    <input type="radio" name="used_sml_products" value="Yes">
+                                    <div class="card-content">
+                                        <div class="card-primary" data-translate="yes">Yes</div>
+                                        <div class="card-checkmark">✓</div>
+                                    </div>
+                                </label>
+                                <label class="selection-card compact">
+                                    <input type="radio" name="used_sml_products" value="No">
+                                    <div class="card-content">
+                                        <div class="card-primary" data-translate="no">No</div>
+                                        <div class="card-checkmark">✓</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <span class="error-text" id="error-used_sml_products"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUCCESS SCREEN -->
+            <div class="step-screen success-screen" id="successScreen">
+                <div class="screen-content centered">
+                    <div class="success-animation">
+                        <div class="success-circle">
+                            <div class="success-checkmark">✓</div>
+                        </div>
+                    </div>
+                    <h1 class="screen-title" data-translate="successTitle">Thank you!</h1>
+                    <p class="screen-subtitle" data-translate="successMessage">Your information has been submitted successfully. We'll get in touch with you soon.</p>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Success Message -->
-        <div class="success-container" id="successMessage">
-            <div class="success-icon">✓</div>
-            <h2 class="success-title" data-translate="successTitle">Submission Successful!</h2>
-            <p class="success-text" data-translate="successText">Your farmer validation has been submitted successfully.</p>
+        <!-- Submit Error Message -->
+        <div class="error-banner" id="errorBanner">
+            <span data-translate="submitError">Unable to submit. Please check your connection and try again.</span>
         </div>
 
-        <!-- Error Message -->
-        <div class="submit-error" id="submitError">
-            <span data-translate="submitError">Failed to submit. Please check your connection and try again.</span>
-        </div>
-
-        <!-- Navigation Buttons -->
-        <div class="button-container">
-            <button type="button" class="btn btn-back" id="backBtn">
-                <span>←</span>
-                <span data-translate="back">Back</span>
+        <!-- Bottom CTA Button -->
+        <div class="cta-container" id="ctaContainer">
+            <button type="button" class="cta-button" id="ctaButton">
+                <span class="cta-text" data-translate="continue">Continue</span>
+                <span class="cta-arrow">→</span>
             </button>
-            <button type="button" class="btn btn-next" id="nextBtn">
-                <span data-translate="next">Next</span>
-                <span>→</span>
-            </button>
-            <button type="button" class="btn btn-submit" id="submitBtn">
-                <span data-translate="submit">Submit</span>
-            </button>
         </div>
-    </main>
+
+    </div>
 
     <script src="script.js"></script>
 </body>
