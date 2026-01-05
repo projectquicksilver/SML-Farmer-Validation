@@ -234,7 +234,7 @@ const elements = {
 // IMPORTANT: Replace this with your actual webhook URL
 // For n8n, it should look like: 'https://your-n8n-instance.com/webhook/sml_farmer_validation'
 // For local testing with ngrok: 'https://your-ngrok-url.ngrok.io/webhook-test/sml_farmer_validation'
-const WEBHOOK_URL = 'https://n8n.srv1152566.hstgr.cloud/webhook-test/84ec9b62-a32c-45e0-8068-a796a5682eba';
+const WEBHOOK_URL = 'https://your-n8n-instance.com/webhook/sml_farmer_validation';
 
 // Webhook timeout (in milliseconds)
 const WEBHOOK_TIMEOUT = 5000; // 5 seconds
@@ -243,17 +243,49 @@ const WEBHOOK_TIMEOUT = 5000; // 5 seconds
 // SEND DATA TO WEBHOOK (NON-BLOCKING)
 // ============================================
 function sendDataToWebhook(stepData, stepNumber) {
+    // Only send on step 2 (steps 1+2) and step 4 (steps 3+4)
+    if (stepNumber !== 2 && stepNumber !== 4) {
+        console.log(`Step ${stepNumber}: Data collected but not sent yet`);
+        return true;
+    }
+
     // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT);
 
-    const payload = {
-        step: stepNumber,
-        timestamp: new Date().toISOString(),
-        ...stepData
-    };
-
-    console.log(`Sending data for step ${stepNumber}:`, payload);
+    // Determine which steps to include
+    let payload;
+    if (stepNumber === 2) {
+        // Send steps 1 and 2 together
+        payload = {
+            batch: "steps_1_and_2",
+            steps_included: [1, 2],
+            timestamp: new Date().toISOString(),
+            language: formData.language,
+            name: formData.name,
+            alternate_mobile: formData.alternate_mobile
+        };
+        console.log('Sending Steps 1 & 2 data:', payload);
+    } else if (stepNumber === 4) {
+        // Send steps 3 and 4 together (complete form)
+        payload = {
+            batch: "steps_3_and_4",
+            steps_included: [3, 4],
+            timestamp: new Date().toISOString(),
+            // Include all previous data for context
+            language: formData.language,
+            name: formData.name,
+            alternate_mobile: formData.alternate_mobile,
+            // New data from steps 3 and 4
+            crops: formData.crops,
+            land_acreage: parseFloat(formData.land_acreage) || 0,
+            state: formData.state,
+            district: formData.district,
+            place: formData.place,
+            used_sml_products: formData.used_sml_products
+        };
+        console.log('Sending Steps 3 & 4 data (Complete Form):', payload);
+    }
 
     // Send data asynchronously without blocking UI
     fetch(WEBHOOK_URL, {
@@ -267,17 +299,17 @@ function sendDataToWebhook(stepData, stepNumber) {
     .then(response => {
         clearTimeout(timeoutId);
         if (response.ok) {
-            console.log(`Step ${stepNumber} data sent successfully`);
+            console.log(`Batch "${payload.batch}" sent successfully`);
         } else {
-            console.warn(`Step ${stepNumber} webhook returned status: ${response.status}`);
+            console.warn(`Batch "${payload.batch}" webhook returned status: ${response.status}`);
         }
     })
     .catch(error => {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
-            console.warn(`Step ${stepNumber} webhook request timed out`);
+            console.warn(`Batch webhook request timed out`);
         } else {
-            console.error(`Error sending step ${stepNumber} data:`, error);
+            console.error(`Error sending batch data:`, error);
         }
     });
 
