@@ -231,40 +231,58 @@ const elements = {
 // ============================================
 // WEBHOOK CONFIGURATION
 // ============================================
-const WEBHOOK_URL = 'http://localhost:5678/webhook-test/sml_farmer_validation';
+// IMPORTANT: Replace this with your actual webhook URL
+// For n8n, it should look like: 'https://your-n8n-instance.com/webhook/sml_farmer_validation'
+// For local testing with ngrok: 'https://your-ngrok-url.ngrok.io/webhook-test/sml_farmer_validation'
+const WEBHOOK_URL = 'https://your-n8n-instance.com/webhook/sml_farmer_validation';
+
+// Webhook timeout (in milliseconds)
+const WEBHOOK_TIMEOUT = 5000; // 5 seconds
 
 // ============================================
-// SEND DATA TO WEBHOOK
+// SEND DATA TO WEBHOOK (NON-BLOCKING)
 // ============================================
-async function sendDataToWebhook(stepData, stepNumber) {
-    try {
-        const payload = {
-            step: stepNumber,
-            timestamp: new Date().toISOString(),
-            ...stepData
-        };
+function sendDataToWebhook(stepData, stepNumber) {
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT);
 
-        console.log(`Sending data for step ${stepNumber}:`, payload);
+    const payload = {
+        step: stepNumber,
+        timestamp: new Date().toISOString(),
+        ...stepData
+    };
 
-        const response = await fetch(WEBHOOK_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload)
-        });
+    console.log(`Sending data for step ${stepNumber}:`, payload);
 
+    // Send data asynchronously without blocking UI
+    fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+    })
+    .then(response => {
+        clearTimeout(timeoutId);
         if (response.ok) {
             console.log(`Step ${stepNumber} data sent successfully`);
-            return true;
         } else {
             console.warn(`Step ${stepNumber} webhook returned status: ${response.status}`);
-            return false;
         }
-    } catch (error) {
-        console.error(`Error sending step ${stepNumber} data:`, error);
-        return false;
-    }
+    })
+    .catch(error => {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            console.warn(`Step ${stepNumber} webhook request timed out`);
+        } else {
+            console.error(`Error sending step ${stepNumber} data:`, error);
+        }
+    });
+
+    // Don't wait for the webhook response - return immediately
+    return true;
 }
 
 // ============================================
@@ -372,7 +390,6 @@ function setupEventListeners() {
         });
     }
     
-    // Listen for place input
     const placeInput = document.getElementById('place');
     if (placeInput) {
         placeInput.addEventListener('input', (e) => {
@@ -380,7 +397,6 @@ function setupEventListeners() {
         });
     }
     
-    // Listen for product usage selection
     document.querySelectorAll('input[name="used_sml_products"]').forEach(input => {
         input.addEventListener('change', (e) => {
             formData.used_sml_products = e.target.value;
@@ -418,13 +434,13 @@ function updateTranslations() {
 // ============================================
 // NAVIGATION
 // ============================================
-async function handleContinue() {
+function handleContinue() {
     if (validateCurrentStep()) {
         // Collect data for current step
         const stepData = collectCurrentStepData();
         
-        // Send data to webhook
-        await sendDataToWebhook(stepData, currentStep);
+        // Send data to webhook (non-blocking)
+        sendDataToWebhook(stepData, currentStep);
         
         if (currentStep < totalSteps) {
             goToNextStep();
@@ -456,7 +472,7 @@ function collectCurrentStepData() {
                 name: formData.name,
                 alternate_mobile: formData.alternate_mobile,
                 crops: formData.crops,
-                land_acreage: parseFloat(formData.land_acreage)
+                land_acreage: parseFloat(formData.land_acreage) || 0
             };
             break;
         case 4:
@@ -465,7 +481,7 @@ function collectCurrentStepData() {
                 name: formData.name,
                 alternate_mobile: formData.alternate_mobile,
                 crops: formData.crops,
-                land_acreage: parseFloat(formData.land_acreage),
+                land_acreage: parseFloat(formData.land_acreage) || 0,
                 state: formData.state,
                 district: formData.district,
                 place: formData.place,
@@ -749,7 +765,7 @@ function handleStateChange() {
     const t = translations[selectedLanguage];
     
     formData.state = selectedState;
-    formData.district = ''; // Reset district when state changes
+    formData.district = '';
     
     elements.districtSelect.innerHTML = `<option value="">${t.selectDistrict}</option>`;
     
@@ -767,7 +783,6 @@ function handleStateChange() {
         elements.districtSelect.disabled = true;
     }
     
-    // Add district change listener
     elements.districtSelect.addEventListener('change', (e) => {
         formData.district = e.target.value;
     });
@@ -776,23 +791,20 @@ function handleStateChange() {
 // ============================================
 // FORM SUBMISSION
 // ============================================
-async function handleSubmit() {
+function handleSubmit() {
     elements.ctaButton.classList.add('loading');
     elements.ctaButton.disabled = true;
     
-    try {
-        // Final submission with all data
-        const finalData = collectCurrentStepData();
-        await sendDataToWebhook(finalData, currentStep);
-        
+    // Final submission with all data
+    const finalData = collectCurrentStepData();
+    sendDataToWebhook(finalData, currentStep);
+    
+    // Show success immediately (don't wait for webhook)
+    setTimeout(() => {
         showSuccessScreen();
-    } catch (error) {
-        console.error('Submission error:', error);
-        showSuccessScreen(); // Still show success screen
-    } finally {
         elements.ctaButton.classList.remove('loading');
         elements.ctaButton.disabled = false;
-    }
+    }, 800);
 }
 
 function showSuccessScreen() {
