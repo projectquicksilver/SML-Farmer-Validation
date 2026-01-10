@@ -40,7 +40,7 @@ const translations = {
         successTitle: "धन्यवाद!", successMsg: "तुमची माहिती यशस्वीरित्या सबमिट केली गेली आहे. आम्ही लवकरच तुमच्याशी संपर्क साधू."
     },
     Gujarati: {
-        pageTitle: "ખેડૂત નોંધણી", pageSubtitle: "નીચેનું ફોર્મ ભરો",
+        pageTitle: "ખેડૂત નોંધણી", pageSubtitle: "નીચેનું ફોર્મ भરો",
         langSec: "ભાષા પ્રાધાન્ય", persSec: "વ્યક્તિગત માહિતી",
         farmSec: "ખેત માહિતી", locSec: "સ્થાન વિગતો", prodSec: "ઉત્પાદન માહિતી",
         nameLbl: "તમારું નામ", mobLbl: "મોબાઇલ નંબર", cropsLbl: "તમારા પાક પસંદ કરો",
@@ -77,14 +77,33 @@ const districts = {
 // ============================================
 let selectedLanguage = 'English';
 let formData = {};
+let formSubmitted = false;
 
 // ============================================
 // INITIALIZATION
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if form was already submitted
+    if (sessionStorage.getItem('formSubmitted') === 'true') {
+        showSuccess();
+        return;
+    }
+    
     setupEventListeners();
     clearForm();
+    
+    // Prevent back button after submission
+    window.addEventListener('popstate', handleBackButton);
 });
+
+function handleBackButton(event) {
+    if (formSubmitted || sessionStorage.getItem('formSubmitted') === 'true') {
+        event.preventDefault();
+        showSuccess();
+        // Push state again to prevent going back
+        history.pushState(null, null, window.location.href);
+    }
+}
 
 function clearForm() {
     document.querySelectorAll('input[type="text"], input[type="tel"], input[type="number"]').forEach(i => i.value = '');
@@ -390,22 +409,35 @@ async function handleSubmit() {
 
             if (response.ok) {
                 console.log('✅ Form submitted successfully');
+                markFormAsSubmitted();
                 showSuccess();
             } else {
                 console.warn('⚠️ Webhook returned status:', response.status);
+                markFormAsSubmitted();
                 showSuccess(); // Show success anyway
             }
         } catch (error) {
             console.error('❌ Submission error:', error);
+            markFormAsSubmitted();
             showSuccess(); // Show success anyway for better UX
         }
     } else {
         console.log('Webhook disabled. Data:', data);
-        setTimeout(showSuccess, 800);
+        setTimeout(() => {
+            markFormAsSubmitted();
+            showSuccess();
+        }, 800);
     }
 
     submitBtn.classList.remove('loading');
     submitBtn.disabled = false;
+}
+
+function markFormAsSubmitted() {
+    formSubmitted = true;
+    sessionStorage.setItem('formSubmitted', 'true');
+    // Push state to history to prevent back navigation
+    history.pushState(null, null, window.location.href);
 }
 
 function showSuccess() {
