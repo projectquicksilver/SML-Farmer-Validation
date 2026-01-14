@@ -15,13 +15,19 @@ const translations = {
         farmSec: "Farm Information", locSec: "Location Details", prodSec: "Product Information",
         nameLbl: "Your Name", mobLbl: "Mobile Number", cropsLbl: "Select Your Crops",
         acreLbl: "Land Area (in acres)", stateLbl: "State", distLbl: "District",
-        placeLbl: "Village/Town (Optional)", prodLbl: "Have you used SML products?",
+        placeLbl: "Village/Town (Optional)", 
+        prodLbl: "Please indicate the company whose product(s) you have previously used",
         namePh: "Enter your full name", acrePh: "e.g., 2.5", placePh: "Enter your location",
         otherPh: "Specify your crop", stateSel: "Select your state", distSel: "Select your district",
+        prodSel: "Select an option",
+        prodSML: "SML",
+        prodSumil: "Sumil Chemicals",
+        prodBoth: "Both",
+        prodNone: "None",
         stateGuj: "Gujarat", stateMah: "Maharashtra",
         cWheat: "Wheat", cCotton: "Cotton", cSoy: "Soybean", cGround: "Groundnut",
         cMaize: "Maize", cSugar: "Sugarcane", cOther: "Other",
-        yes: "Yes", no: "No", submitBtn: "Submit Registration",
+        submitBtn: "Submit Registration",
         successTitle: "Thank you!", successMsg: "Your information has been submitted successfully. We'll get in touch with you soon."
     },
     Marathi: {
@@ -30,13 +36,19 @@ const translations = {
         farmSec: "शेत माहिती", locSec: "स्थान तपशील", prodSec: "उत्पादन माहिती",
         nameLbl: "तुमचे नाव", mobLbl: "मोबाईल नंबर", cropsLbl: "तुमची पिके निवडा",
         acreLbl: "जमीन क्षेत्र (एकरमध्ये)", stateLbl: "राज्य", distLbl: "जिल्हा",
-        placeLbl: "गाव/शहर (पर्यायी)", prodLbl: "तुम्ही SML उत्पादने वापरली आहेत का?",
+        placeLbl: "गाव/शहर (पर्यायी)", 
+        prodLbl: "कृपया आपण यापूर्वी कोणत्या कंपनीची उत्पादने वापरली आहेत ते नमूद करा",
         namePh: "तुमचे पूर्ण नाव प्रविष्ट करा", acrePh: "उदा., 2.5", placePh: "तुमचे स्थान प्रविष्ट करा",
         otherPh: "तुमचे पीक निर्दिष्ट करा", stateSel: "तुमचे राज्य निवडा", distSel: "तुमचा जिल्हा निवडा",
+        prodSel: "एक पर्याय निवडा",
+        prodSML: "SML",
+        prodSumil: "Sumil Chemicals",
+        prodBoth: "दोन्ही",
+        prodNone: "नाही",
         stateGuj: "गुजरात", stateMah: "महाराष्ट्र",
         cWheat: "गहू", cCotton: "कापूस", cSoy: "सोयाबीन", cGround: "भुईमूग",
         cMaize: "मका", cSugar: "ऊस", cOther: "इतर",
-        yes: "होय", no: "नाही", submitBtn: "नोंदणी सबमिट करा",
+        submitBtn: "नोंदणी सबमिट करा",
         successTitle: "धन्यवाद!", successMsg: "तुमची माहिती यशस्वीरित्या सबमिट केली गेली आहे. आम्ही लवकरच तुमच्याशी संपर्क साधू."
     },
     Gujarati: {
@@ -45,13 +57,19 @@ const translations = {
         farmSec: "ખેત માહિતી", locSec: "સ્થાન વિગતો", prodSec: "ઉત્પાદન માહિતી",
         nameLbl: "તમારું નામ", mobLbl: "મોબાઇલ નંબર", cropsLbl: "તમારા પાક પસંદ કરો",
         acreLbl: "જમીન વિસ્તાર (એકરમાં)", stateLbl: "રાજ્ય", distLbl: "જિલ્લો",
-        placeLbl: "ગામ/શહેર (વૈકલ્પિક)", prodLbl: "શું તમે SML ઉત્પાદનોનો ઉપયોગ કર્યો છે?",
+        placeLbl: "ગામ/શહેર (વૈકલ્પિક)", 
+        prodLbl: "કૃપા કરીને જણાવો કે તમે અગાઉ કઈ કંપનીના ઉત્પાદનો ઉપયોગમાં લીધા છે",
         namePh: "તમારું પૂર્ણ નામ દાખલ કરો", acrePh: "દા.ત., 2.5", placePh: "તમારું સ્થાન દાખલ કરો",
         otherPh: "તમારો પાક ઉલ્લેખ કરો", stateSel: "તમારું રાજ્ય પસંદ કરો", distSel: "તમારો જિલ્લો પસંદ કરો",
+        prodSel: "એક વિકલ્પ પસંદ કરો",
+        prodSML: "SML",
+        prodSumil: "Sumil Chemicals",
+        prodBoth: "બંને",
+        prodNone: "કોઈ નહીં",
         stateGuj: "ગુજરાત", stateMah: "મહારાષ્ટ્ર",
         cWheat: "ઘઉં", cCotton: "કપાસ", cSoy: "સોયાબીન", cGround: "મગફળી",
         cMaize: "મકાઈ", cSugar: "શેરડી", cOther: "અન્ય",
-        yes: "હા", no: "ના", submitBtn: "નોંધણી સબમિટ કરો",
+        submitBtn: "નોંધણી સબમિટ કરો",
         successTitle: "આભાર!", successMsg: "તમારી માહિતી સફળતાપૂર્વક સબમિટ કરવામાં આવી છે. અમે ટૂંક સમયમાં તમારો સંપર્ક કરીશું."
     }
 };
@@ -184,29 +202,33 @@ function updateTranslations() {
 }
 
 // ============================================
-// DISTRICTS UPDATE
+// DISTRICT UPDATE
 // ============================================
 function updateDistricts() {
     const stateSelect = document.getElementById('state');
     const districtSelect = document.getElementById('district');
+    
+    if (!stateSelect || !districtSelect) return;
+    
     const selectedState = stateSelect.value;
-    const t = translations[selectedLanguage];
     
-    districtSelect.innerHTML = `<option value="">${t.distSel}</option>`;
-    
-    if (selectedState && districts[selectedState]) {
-        districtSelect.disabled = false;
-        const distList = districts[selectedState][selectedLanguage] || districts[selectedState]['English'];
-        
-        distList.forEach(dist => {
-            const option = document.createElement('option');
-            option.value = dist;
-            option.textContent = dist;
-            districtSelect.appendChild(option);
-        });
-    } else {
+    if (!selectedState) {
         districtSelect.disabled = true;
+        districtSelect.innerHTML = `<option value="">${translations[selectedLanguage].distSel}</option>`;
+        return;
     }
+    
+    districtSelect.disabled = false;
+    districtSelect.innerHTML = `<option value="">${translations[selectedLanguage].distSel}</option>`;
+    
+    const districtList = districts[selectedState][selectedLanguage] || [];
+    
+    districtList.forEach(district => {
+        const option = document.createElement('option');
+        option.value = district;
+        option.textContent = district;
+        districtSelect.appendChild(option);
+    });
 }
 
 // ============================================
@@ -291,10 +313,11 @@ function validateForm() {
         isValid = false;
     }
 
-    // Product usage
-    const usedProducts = document.querySelector('input[name="used_products"]:checked');
+    // Product usage - now a dropdown
+    const usedProducts = document.getElementById('usedProducts').value;
     if (!usedProducts) {
         showError('products', 'Please select an option');
+        document.getElementById('usedProducts').classList.add('error');
         isValid = false;
     }
 
@@ -343,7 +366,7 @@ function collectFormData() {
     const state = document.getElementById('state').value;
     const district = document.getElementById('district').value;
     const place = document.getElementById('place').value.trim();
-    const usedProducts = document.querySelector('input[name="used_products"]:checked')?.value || '';
+    const usedProducts = document.getElementById('usedProducts').value;
 
     return {
         timestamp: new Date().toISOString(),
@@ -355,7 +378,7 @@ function collectFormData() {
         state,
         district,
         place,
-        used_sml_products: usedProducts
+        products_used: usedProducts
     };
 }
 
