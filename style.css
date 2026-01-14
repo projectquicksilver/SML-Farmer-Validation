@@ -71,7 +71,10 @@ body {
     position: relative;
     z-index: 1;
     margin-bottom: 20px;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
 }
 
 .logo-wrapper {
@@ -82,10 +85,17 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     padding: 15px;
     animation: fadeInDown 0.6s ease-out;
+}
+
+.logo-wrapper:first-child {
+    animation-delay: 0s;
+}
+
+.logo-wrapper:last-child {
+    animation-delay: 0.1s;
 }
 
 .app-logo {
@@ -100,7 +110,7 @@ body {
     margin-bottom: 8px;
     position: relative;
     z-index: 1;
-    animation: fadeInUp 0.6s ease-out 0.1s backwards;
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
     letter-spacing: -0.5px;
 }
 
@@ -109,7 +119,7 @@ body {
     opacity: 0.95;
     position: relative;
     z-index: 1;
-    animation: fadeInUp 0.6s ease-out 0.2s backwards;
+    animation: fadeInUp 0.6s ease-out 0.3s backwards;
     font-weight: 400;
 }
 
@@ -412,48 +422,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.yn-cards {
-    display: flex;
-    gap: 14px;
-}
-
-.yn-card {
-    flex: 1;
-    position: relative;
-    cursor: pointer;
-}
-
-.yn-card input {
-    position: absolute;
-    opacity: 0;
-}
-
-.yn-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    min-height: 80px;
-    background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
-    border: 2px solid var(--border);
-    border-radius: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 17px;
-    font-weight: 600;
-}
-
-.yn-card:hover .yn-content {
-    border-color: rgba(124, 179, 66, 0.4);
-    transform: scale(1.03);
-}
-
-.yn-card input:checked + .yn-content {
-    border-color: var(--accent);
-    background: linear-gradient(135deg, rgba(124, 179, 66, 0.12) 0%, rgba(124, 179, 66, 0.06) 100%);
-    color: var(--primary);
-    box-shadow: 0 4px 12px rgba(124, 179, 66, 0.2);
-}
-
 .error-text {
     display: none;
     color: var(--error);
@@ -607,10 +575,14 @@ body {
         border-radius: 0 0 24px 24px;
     }
     
+    .logo-container {
+        gap: 16px;
+    }
+    
     .logo-wrapper {
-        width: 95px;
-        height: 95px;
-        padding: 12px;
+        width: 85px;
+        height: 85px;
+        padding: 10px;
     }
     
     .page-title {
