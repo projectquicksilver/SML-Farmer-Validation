@@ -5,6 +5,41 @@ const WEBHOOK_URL = 'https://n8n.srv1152566.hstgr.cloud/webhook/84ec9b62-a32c-45
 const ENABLE_WEBHOOK = true;
 const WEBHOOK_TIMEOUT = 5000;
 
+// WhatsApp API Configuration
+const WHATSAPP_API_URL = 'https://wa-dashboard.digicides.in/whatsapp/api/receive_missedcall';
+const DID_NO = '7738089884';
+const COMPANY = 'Digicides';
+const AGENT_NAME = 'Digicides demo';
+
+// Campaign Name Mapping based on language and product
+const CAMPAIGN_MAPPING = {
+    'Marathi': {
+        'SML': 'thankmr',
+        'Sumil Chemicals': 'thankyoumr',
+        'Both': 'thankmr',
+        'None': 'thankmr'
+    },
+    'Gujarati': {
+        'SML': 'thankgu',
+        'Sumil Chemicals': 'thankyougu',
+        'Both': 'thankgu',
+        'None': 'thankgu'
+    },
+    'English': {
+        'SML': 'thankmr', // Default to Marathi for English
+        'Sumil Chemicals': 'thankyoumr',
+        'Both': 'thankmr',
+        'None': 'thankmr'
+    }
+};
+
+// Language code mapping for API
+const LANGUAGE_CODE_MAPPING = {
+    'Marathi': 'Mr',
+    'Gujarati': 'Gu',
+    'English': 'Mr' // Default to Marathi for English
+};
+
 // ============================================
 // TRANSLATIONS
 // ============================================
@@ -185,24 +220,28 @@ function updateTranslations() {
     // Update all elements with data-tr attribute
     document.querySelectorAll('[data-tr]').forEach(el => {
         const key = el.getAttribute('data-tr');
-        if (t[key]) el.textContent = t[key];
+        if (t[key]) {
+            if (el.tagName === 'OPTION') {
+                el.textContent = t[key];
+            } else {
+                el.textContent = t[key];
+            }
+        }
     });
     
     // Update placeholders
     document.querySelectorAll('[data-tr-ph]').forEach(el => {
         const key = el.getAttribute('data-tr-ph');
-        if (t[key]) el.placeholder = t[key];
+        if (t[key]) {
+            el.placeholder = t[key];
+        }
     });
     
-    // Update districts if state is selected
-    const stateSelect = document.getElementById('state');
-    if (stateSelect && stateSelect.value) {
-        updateDistricts();
-    }
+    updateDistricts();
 }
 
 // ============================================
-// DISTRICT UPDATE
+// UPDATE DISTRICTS
 // ============================================
 function updateDistricts() {
     const stateSelect = document.getElementById('state');
@@ -212,16 +251,17 @@ function updateDistricts() {
     
     const selectedState = stateSelect.value;
     
+    // Clear districts
+    districtSelect.innerHTML = `<option value="">${translations[selectedLanguage].distSel}</option>`;
+    
     if (!selectedState) {
         districtSelect.disabled = true;
-        districtSelect.innerHTML = `<option value="">${translations[selectedLanguage].distSel}</option>`;
         return;
     }
     
+    // Populate districts
     districtSelect.disabled = false;
-    districtSelect.innerHTML = `<option value="">${translations[selectedLanguage].distSel}</option>`;
-    
-    const districtList = districts[selectedState][selectedLanguage] || [];
+    const districtList = districts[selectedState]?.[selectedLanguage] || [];
     
     districtList.forEach(district => {
         const option = document.createElement('option');
@@ -249,10 +289,6 @@ function validateForm() {
     const name = document.getElementById('name').value.trim();
     if (!name) {
         showError('name', 'Name is required');
-        document.getElementById('name').classList.add('error');
-        isValid = false;
-    } else if (name.length < 2) {
-        showError('name', 'Name must be at least 2 characters');
         document.getElementById('name').classList.add('error');
         isValid = false;
     }
@@ -383,6 +419,47 @@ function collectFormData() {
 }
 
 // ============================================
+// WHATSAPP API CALL
+// ============================================
+async function sendWhatsAppNotification(mobile, language, productUsed) {
+    try {
+        // Get the campaign name based on language and product used
+        const campaignName = CAMPAIGN_MAPPING[language]?.[productUsed] || 'thankmr';
+        const languageCode = LANGUAGE_CODE_MAPPING[language] || 'Mr';
+
+        const whatsappPayload = {
+            did_no: DID_NO,
+            company: COMPANY,
+            agent_name: AGENT_NAME,
+            language: languageCode,
+            campaign_name: campaignName,
+            caller: mobile
+        };
+
+        console.log('📱 Sending WhatsApp notification with payload:', whatsappPayload);
+
+        const response = await fetch(WHATSAPP_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(whatsappPayload)
+        });
+
+        if (response.ok) {
+            console.log('✅ WhatsApp notification sent successfully');
+            return true;
+        } else {
+            console.warn('⚠️ WhatsApp API returned status:', response.status);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ WhatsApp notification error:', error);
+        return false;
+    }
+}
+
+// ============================================
 // SUBMIT FORM
 // ============================================
 async function handleSubmit() {
@@ -396,7 +473,8 @@ async function handleSubmit() {
     submitBtn.disabled = true;
 
     const data = collectFormData();
-
+    
+    // Send to original webhook
     if (ENABLE_WEBHOOK) {
         try {
             const controller = new AbortController();
@@ -412,20 +490,24 @@ async function handleSubmit() {
             clearTimeout(timeoutId);
 
             if (response.ok) {
-                console.log('✅ Form submitted successfully');
-                showSuccess();
+                console.log('✅ Form submitted to webhook successfully');
             } else {
                 console.warn('⚠️ Webhook returned status:', response.status);
-                showSuccess(); // Show success anyway
             }
         } catch (error) {
-            console.error('❌ Submission error:', error);
-            showSuccess(); // Show success anyway for better UX
+            console.error('❌ Webhook submission error:', error);
         }
-    } else {
-        console.log('Webhook disabled. Data:', data);
-        setTimeout(showSuccess, 800);
     }
+
+    // Send WhatsApp notification
+    await sendWhatsAppNotification(
+        data.alternate_mobile,
+        data.language,
+        data.products_used
+    );
+
+    // Show success screen
+    showSuccess();
 
     submitBtn.classList.remove('loading');
     submitBtn.disabled = false;
